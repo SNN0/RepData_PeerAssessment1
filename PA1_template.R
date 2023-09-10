@@ -1,15 +1,4 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-author: "Sinan"
-date: "2023-09-10"
-output: 
-  html_document:
-    keep_md: true
----
-
-## Loading and preprocessing the data
-
-```{r}
+if (!file.exists('./data')){dir.create('./data')}
 
 # Download and unzip the dataset
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
@@ -18,17 +7,15 @@ download.file(url, destfile = zipfile)
 unzip(zipfile, exdir = './data')
 
 #Load the data
+
 data = read.csv('./data/activity.csv')
+
 str(data)
 
 #check missing values
 missing_values = sum(is.na(data$steps))
 missing_values
-```
 
-## What is mean total number of steps taken per day?
-
-```{r total_steps_per_day, echo=TRUE}
 # calculate total steps per day
 total_steps_per_day = aggregate(steps ~ date, data, sum)
 
@@ -41,11 +28,7 @@ median_step = median(total_steps_per_day$steps)
 
 sprintf('Mean = %s, Median = %s', mean_step, median_step)
 
-```
-
-## What is the average daily activity pattern?
-
-```{r average_steps_by_interval, echo=TRUE}
+# Average Daily Activity Pattern #
 # calculate average steps for each interval
 
 average_steps_by_interval = aggregate(steps ~ interval, data, mean)
@@ -57,11 +40,10 @@ plot(average_steps_by_interval$interval , average_steps_by_interval$steps, type 
 #find the interval with the maxiumum average steps
 max_interval = average_steps_by_interval[which.max(average_steps_by_interval$steps), ]
 max_interval
-```
 
-## Imputing missing values
 
-```{r total_steps_per_day_imputed, echo=TRUE}
+# Inputing Missing Values #
+
 # fill missing values with mean for that interval
 
 data_imputed = data
@@ -76,11 +58,10 @@ hist(total_steps_per_day_imputed$steps, main = 'Total Steps per Day (Imputed)', 
 mean_step_imputed = mean(total_steps_per_day_imputed$steps)
 median_step_imputed = median(total_steps_per_day_imputed$steps)
 sprintf('Mean = %s, Median = %s', mean_step, median_step)
-```
 
-## Are there differences in activity patterns between weekdays and weekends?
 
-```{r average_steps_by_interval_day, echo=TRUE}
+# Differences in Activity Patterns between Weekdays and Weekends #
+
 # Create a factor varb. for weekdays and weekends
 data_imputed$day_type = ifelse(weekdays(as.Date(data_imputed$date)) %in% c('Saturday','Sunday'), 'weekend', 'weekday')
 
@@ -93,5 +74,3 @@ ggplot(average_steps_by_interval_day, aes(x=interval, y=steps, color=day_type)) 
         geom_line() +
         facet_wrap(~day_type, ncol = 1) +
         labs(x='Interval', y='Average Steps', title ='Average Activity Pattern (Weekdays vs. Weekends)')
-
-```
